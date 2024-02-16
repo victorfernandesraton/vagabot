@@ -1,16 +1,17 @@
-from abc import abstractmethod
 import logging
 import time
-from selenium.webdriver.remote.webelement import WebElement
-from selenium import webdriver
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
-from decouple import config
-from undetected_chromedriver import ChromeOptions
+from abc import abstractmethod
+
 import fake_useragent
+from decouple import config
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+from undetected_chromedriver import ChromeOptions
 
 
 class LinkedinWorkflow:

@@ -1,4 +1,4 @@
-from workflows.linkedin_workflow import LinkedinWorkflow, LinkedinAuth
+from workflows.linkedin_workflow import LinkedinAuth, LinkedinWorkflow
 
 
 class LinkedinGetPosts(LinkedinWorkflow):
