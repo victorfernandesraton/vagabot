@@ -1,20 +1,18 @@
-import logging
 import time
 from abc import abstractmethod
 
 import fake_useragent
 from decouple import config
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import ChromeOptions
 
 
 class LinkedinWorkflow:
+    _username = config("LINKEDIN_EMAIL")
+    _password = config("LINKEDIN_PASS")
+
     def __init__(self) -> None:
         self.drivers: dict[str, WebDriver] = {}
 
@@ -38,45 +36,6 @@ class LinkedinWorkflow:
 
         return driver.session_id
 
-    def login(self, driver_key: str, username: str, password: str):
-        driver = self.drivers[driver_key]
-        logging.info("go to site")
-        driver.maximize_window()
-        driver.get("https://www.linkedin.com")
-        input_wait = WebDriverWait(self.drivers[driver_key], timeout=30)
-        logging.info("set input")
-        try:
-            email_input = input_wait.until(
-                EC.presence_of_element_located((By.ID, "session_key"))
-            )
-            self.human_input_simulate(email_input, username)
-        except TimeoutException:
-            logging.info("Not found login input")
-
-        try:
-            pass_input = input_wait.until(
-                EC.presence_of_element_located((By.ID, "session_password"))
-            )
-            self.human_input_simulate(pass_input, password)
-        except TimeoutException:
-            logging.info("Not found pass input")
-
-        try:
-            btn_submit = input_wait.until(
-                EC.presence_of_element_located((By.XPATH, "//button[@type='submit']"))
-            )
-            btn_submit.click()
-        except TimeoutException:
-            logging.info("Not found button input")
-        finally:
-            logging.info("button clicked")
-
     @abstractmethod
     def execute(self, *args, **kwargs):
         ...
-
-
-class LinkedinAuth:
-    def __init__(self):
-        self.username = config("LINKEDIN_EMAIL")
-        self.password = config("LINKEDIN_PASS")
