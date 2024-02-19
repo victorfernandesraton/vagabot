@@ -1,10 +1,11 @@
-from workflows.linkedin_workflow import LinkedinWorkflow
-from workflows.linkedin_auth import LinkedinAuth
+from vagabot.workflows.linkedin_workflow import LinkedinWorkflow
+from vagabot.workflows.linkedin_auth import LinkedinAuth
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common import exceptions
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from typing import List
 
 
 class LinkedinGetPosts(LinkedinWorkflow):
@@ -12,8 +13,10 @@ class LinkedinGetPosts(LinkedinWorkflow):
     POSTS_BUTTON_SELECT = (
         "//nav/div[@id='search-reusables__filters-bar']/ul/li[1]/button"
     )
+    POSTS_LIST_XPATH = "//div[@class='scaffold-finite-scroll__content']/div/div/ul/li"
 
-    def execute(self, queue_search: str):
+    def execute(self, queue_search: str) -> List[str]:
+        result = []
         driver_key = self.open_browser()
         linkedinAuthService = LinkedinAuth()
         linkedinAuthService.execute(
@@ -36,3 +39,15 @@ class LinkedinGetPosts(LinkedinWorkflow):
             post_btn.click()
         except exceptions.TimeoutException:
             raise Exception("not found post button")
+
+        try:
+            post_list = input_wait.until(
+                EC.presence_of_element_located((By.XPATH, self.POSTS_LIST_XPATH))
+            )
+
+            result = [post.get_attribute("outerHTML") for post in post_list]
+
+        except exceptions.TimeoutException:
+            raise Exception("not found post list")
+
+        return result

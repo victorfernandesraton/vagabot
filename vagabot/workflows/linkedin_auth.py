@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.remote.webdriver import WebDriver
 
-from workflows.linkedin_workflow import LinkedinWorkflow
+from vagabot.workflows.linkedin_workflow import LinkedinWorkflow
 
 
 class LinkedinAuth(LinkedinWorkflow):
