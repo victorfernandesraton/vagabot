@@ -11,7 +11,7 @@ from typing import List
 class LinkedinGetPosts(LinkedinWorkflow):
     SEARCH_INPUT_XPATH = "//*[@id='global-nav-typeahead']/input"
     POSTS_BUTTON_SELECT = (
-        "//nav/div[@id='search-reusables__filters-bar']/ul/li[1]/button"
+        "//nav/div[@id='search-reusables__filters-bar']/ul/li[2]/button"
     )
     POSTS_LIST_XPATH = "//div[@class='scaffold-finite-scroll__content']/div/div/ul/li"
 
@@ -42,8 +42,8 @@ class LinkedinGetPosts(LinkedinWorkflow):
 
         try:
             post_list = input_wait.until(
-                EC.presence_of_element_located((By.XPATH, self.POSTS_LIST_XPATH))
-            )
+                EC.presence_of_all_elements_located((By.XPATH, self.POSTS_LIST_XPATH))
+            )[:9]
 
             result = [post.get_attribute("outerHTML") for post in post_list]
 
