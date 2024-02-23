@@ -14,7 +14,7 @@ class LinkedinAuth(LinkedinWorkflow):
     PASSWORD_INPUT_XPATH = "//input[@id='session_password']"
     BUTTON_SUBMIT_XPATH = "//*[@id='main-content']/section/div/div/form/div/button"
 
-    def execute(self, driver: WebDriver, username: str, password: str):
+    def login(self, driver: WebDriver, username: str, password: str):
         logging.info("go to site")
         driver.maximize_window()
         driver.get("https://www.linkedin.com")

@@ -1,4 +1,3 @@
-from vagabot.workflows.linkedin_workflow import LinkedinWorkflow
 from vagabot.workflows.linkedin_auth import LinkedinAuth
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common import exceptions
@@ -8,7 +7,7 @@ from selenium.webdriver.common.by import By
 from typing import List
 
 
-class LinkedinGetPosts(LinkedinWorkflow):
+class LinkedinGetPosts(LinkedinAuth):
     SEARCH_INPUT_XPATH = "//*[@id='global-nav-typeahead']/input"
     POSTS_BUTTON_SELECT = (
         "//nav/div[@id='search-reusables__filters-bar']/ul/li[2]/button"
@@ -18,8 +17,7 @@ class LinkedinGetPosts(LinkedinWorkflow):
     def execute(self, queue_search: str) -> List[str]:
         result = []
         driver_key = self.open_browser()
-        linkedinAuthService = LinkedinAuth()
-        linkedinAuthService.execute(
+        driver_key = self.login(
             self.drivers[driver_key], username=self._username, password=self._password
         )
         input_wait = WebDriverWait(self.drivers[driver_key], timeout=20)
