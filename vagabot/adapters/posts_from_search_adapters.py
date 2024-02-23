@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 class PostsFromSearchExtractor:
     AUTHOR_TITLE_SELECTOR = (
-        "li div.update-components-actor div .update-components-actor__title span span"
+        "li div.update-components-actor div .update-components-actor__title"
     )
     AUTHOR_DESCRIPTION_SELECTOR = (
         "li div.update-components-actor div .update-components-actor__description"

@@ -10,14 +10,14 @@ from typing import List
 class LinkedinGetPosts(LinkedinAuth):
     SEARCH_INPUT_XPATH = "//*[@id='global-nav-typeahead']/input"
     POSTS_BUTTON_SELECT = (
-        "//nav/div[@id='search-reusables__filters-bar']/ul/li[2]/button"
+        "/html/body/div[5]/div[3]/div[2]/section/div/nav/div/ul/li[2]/button"
     )
     POSTS_LIST_XPATH = "//div[@class='scaffold-finite-scroll__content']/div/div/ul/li"
 
     def execute(self, queue_search: str) -> List[str]:
         result = []
         driver_key = self.open_browser()
-        driver_key = self.login(
+        self.login(
             self.drivers[driver_key], username=self._username, password=self._password
         )
         input_wait = WebDriverWait(self.drivers[driver_key], timeout=20)
@@ -30,13 +30,9 @@ class LinkedinGetPosts(LinkedinAuth):
         except exceptions.TimeoutException:
             raise Exception("not found input here search")
 
-        try:
-            post_btn = input_wait.until(
-                EC.presence_of_element_located((By.XPATH, self.POSTS_BUTTON_SELECT))
-            )
-            post_btn.click()
-        except exceptions.TimeoutException:
-            raise Exception("not found post button")
+        self.drivers[driver_key].get(
+            f"https://www.linkedin.com/search/results/content/?keywords={queue_search}&origin=SWITCH_SEARCH_VERTICAL&sid=r01"
+        )
 
         try:
             post_list = input_wait.until(
