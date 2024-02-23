@@ -36,6 +36,10 @@ class LinkedinWorkflow:
 
         return driver.session_id
 
+    def close(self, driver_key: str):
+        self.drivers[driver_key].close()
+        del self.drivers[driver_key]
+
     @abstractmethod
     def execute(self, *args, **kwargs):
         ...

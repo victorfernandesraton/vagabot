@@ -44,4 +44,5 @@ class LinkedinGetPosts(LinkedinAuth):
         except exceptions.TimeoutException:
             raise Exception("not found post list")
 
+        self.close(driver_key)
         return result
