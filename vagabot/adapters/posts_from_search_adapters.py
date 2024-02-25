@@ -35,10 +35,22 @@ class PostsFromSearchExtractor:
 
     def __to_dict(self, post: str) -> dict:
         soup = BeautifulSoup(post, features="lxml")
+        urn = soup.select_one(self.POST_LINK_SELECTOR)
+        if not urn:
+            return None
+
         return {
             "author": self.__get_author(soup),
             "post": self.__get_publication(soup),
         }
 
     def to_dict(self) -> List[dict]:
-        return [self.__to_dict(post) for post in self.posts]
+        result = []
+        for idx, post_content in enumerate(self.posts):
+            post = self.__to_dict(post_content)
+            if not post:
+                print(f"Not found valid content in post[{idx}]")
+            else:
+                result.append(post)
+
+        return result

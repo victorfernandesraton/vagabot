@@ -38,7 +38,7 @@ class LinkedinCommentPost(LinkedinAuth):
 
         input_wait = WebDriverWait(self.drivers[driver_key], timeout=20)
         for post in posts:
-            self.drivers[driver_key].get(posts["post"]["link"])
+            self.drivers[driver_key].get(post["post"]["link"])
             try:
                 btn_comment = input_wait.until(
                     EC.presence_of_element_located(

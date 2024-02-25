@@ -1,3 +1,4 @@
+import time
 from vagabot.workflows.linkedin_auth import LinkedinAuth
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common import exceptions
@@ -33,6 +34,7 @@ class LinkedinGetPosts(LinkedinAuth):
         self.drivers[driver_key].get(
             f"https://www.linkedin.com/search/results/content/?keywords={queue_search}&origin=SWITCH_SEARCH_VERTICAL&sid=r01"
         )
+        time.sleep(5)
 
         try:
             post_list = input_wait.until(
