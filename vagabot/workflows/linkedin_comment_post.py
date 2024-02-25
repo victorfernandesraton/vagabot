@@ -11,15 +11,15 @@ import selenium.webdriver.support.expected_conditions as EC
 
 class LinkedinCommentPost(LinkedinAuth):
     AUTHOR_PLACEHOLDER = "__author__"
-    COMMENT_BUTTON_SELECTOR = "button#ember76"
-    SEND_COMMENT_BUTTON_SELECTOR = "button#ember376"
+    COMMENT_BUTTON_SELECTOR = "div.editor-content div.ql-editor"
+    SEND_COMMENT_BUTTON_SELECTOR = "button.comments-comment-box__submit-button"
 
     def __init__(self, message: str) -> None:
         super().__init__()
         self.message = message
 
     def _replace_message(self, post: dict) -> str:
-        return self.message.replace(self.AUTHOR_PLACEHOLDER, post["author"]["title"])
+        return self.message.replace(self.AUTHOR_PLACEHOLDER, post["author"]["name"])
 
     def multiprocess_task(self, posts: list):
         chunk_size = config("CONCURRENT_TASKS", 2)
@@ -45,13 +45,12 @@ class LinkedinCommentPost(LinkedinAuth):
                         (By.CSS_SELECTOR, self.COMMENT_BUTTON_SELECTOR)
                     )
                 )
-                btn_comment.click()
+                ActionChains(self.drivers[driver_key]).move_to_element(
+                    btn_comment
+                ).click().perform()
+                btn_comment.send_keys(self._replace_message(post))
             except exceptions.TimeoutException:
                 raise Exception("Not found button for comment")
-
-            ActionChains(self.drivers[driver_key]).send_keys(
-                self._replace_message(post)
-            )
 
             try:
                 btn_send_comment = input_wait.until(
