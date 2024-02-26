@@ -29,6 +29,7 @@ class PostsFromSearchExtractor:
         urn = soup.select_one(self.POST_LINK_SELECTOR).get("data-urn")
 
         return {
+            "id": urn,
             "content": soup.select_one(self.POST_CONTENT_SELECTOR).text,
             "link": f"https://www.linkedin.com/feed/update/{urn}",
         }
