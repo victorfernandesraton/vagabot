@@ -3,9 +3,21 @@
 # To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v3-full-grid.yml down`
 version: "3"
 services:
+  worker:
+    build: .
+    container_name: vagabot-worker
+    environment:
+      - LINKEDIN_EMAIL=${LINKEDIN_EMAIL}
+      - LINKEDIN_PASS=${LINKEDIN_PASS}
+      # this define host for selenium grid router, if you runing outside container is should be http://localhost:4444 by default
+      - SE_ROUTER_HOST=selenium-router
+      - SE_ROUTER_PORT=4444
+    depends_on:
+      - selenium-router
+
   selenium-event-bus:
     image: selenium/event-bus:4.1.1-20211217
-    container_name: vgabot-selenium-event-bus
+    container_name: vagabot-selenium-event-bus
     ports:
       - "4442:4442"
       - "4443:4443"
@@ -13,7 +25,7 @@ services:
 
   selenium-sessions:
     image: selenium/sessions:4.1.1-20211217
-    container_name: vgabot-selenium-sessions
+    container_name: vagabot-selenium-sessions
     ports:
       - "5556:5556"
     depends_on:
@@ -25,7 +37,7 @@ services:
 
   selenium-session-queue:
     image: selenium/session-queue:4.1.1-20211217
-    container_name: vgabot-selenium-session-queue
+    container_name: vagabot-selenium-session-queue
     ports:
       - "5559:5559"
     depends_on:
@@ -37,7 +49,7 @@ services:
 
   selenium-distributor:
     image: selenium/distributor:4.1.1-20211217
-    container_name: vgabot-selenium-distributor
+    container_name: vagabot-selenium-distributor
     ports:
       - "5553:5553"
     depends_on:
@@ -55,7 +67,7 @@ services:
 
   selenium-router:
     image: selenium/router:4.1.1-20211217
-    container_name: vgabot-selenium-router
+    container_name: vagabot-selenium-router
     ports:
       - "4444:4444"
     depends_on:
@@ -71,7 +83,7 @@ services:
       - SE_SESSION_QUEUE_PORT=5559
 
   chrome:
-    container_name: vgabot-selenium-chrome
+    container_name: vagabot-selenium-chrome
     image: selenium/node-chrome:4.1.1-20211217
     shm_size: 2gb
     depends_on:

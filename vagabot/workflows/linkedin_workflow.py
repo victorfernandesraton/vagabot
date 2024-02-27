@@ -12,9 +12,17 @@ from undetected_chromedriver import ChromeOptions
 class LinkedinWorkflow:
     _username = config("LINKEDIN_EMAIL")
     _password = config("LINKEDIN_PASS")
+    _se_router_host = config("SE_ROUTER_HOST", "localhost")
+    _se_router_port = config("SE_ROUTER_PORT", "4444")
 
     def __init__(self) -> None:
         self.drivers: dict[str, WebDriver] = {}
+        if self._se_router_port:
+            self._se_router_url = (
+                f"http://{self._se_router_host}:{self._se_router_port}"
+            )
+        else:
+            self._se_router_url = f"http://{self._se_router_host}"
 
     @staticmethod
     def human_input_simulate(element: WebElement, content: str, delay=1):
@@ -23,11 +31,12 @@ class LinkedinWorkflow:
             element.send_keys(key)
 
     def open_browser(self) -> str:
+        print(f"Open browser in {self._se_router_url}")
         opts = ChromeOptions()
         opts.add_argument(
             f"user-agent={fake_useragent.UserAgent(os='windows', browsers=['chrommiun'])}"
         )
-        driver = webdriver.Remote(options=opts)
+        driver = webdriver.Remote(options=opts, command_executor=self._se_router_url)
 
         if not driver.session_id:
             raise Exception("Not able to regisrer a driver")
