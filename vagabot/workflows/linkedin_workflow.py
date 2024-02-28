@@ -10,8 +10,7 @@ from undetected_chromedriver import ChromeOptions
 
 
 class LinkedinWorkflow:
-    _username = config("LINKEDIN_EMAIL")
-    _password = config("LINKEDIN_PASS")
+    # TODO: moving foward for cli
     _se_router_host = config("SE_ROUTER_HOST", "localhost")
     _se_router_port = config("SE_ROUTER_PORT", "4444")
 

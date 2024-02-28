@@ -30,11 +30,9 @@ class LinkedinCommentPost(LinkedinAuth):
             for chunk in posts_to_proccess:
                 executor.submit(self.execute, [chunk])
 
-    def execute(self, posts: list):
+    def execute(self, posts: list, username: str, password: str):
         driver_key = self.open_browser()
-        self.login(
-            self.drivers[driver_key], username=self._username, password=self._password
-        )
+        self.login(self.drivers[driver_key], username, password)
 
         input_wait = WebDriverWait(self.drivers[driver_key], timeout=20)
         for post in posts:

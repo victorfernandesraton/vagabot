@@ -15,12 +15,10 @@ class LinkedinGetPosts(LinkedinAuth):
     )
     POSTS_LIST_XPATH = "//div[@class='scaffold-finite-scroll__content']/div/div/ul/li"
 
-    def execute(self, queue_search: str) -> List[str]:
+    def execute(self, queue_search: str, username: str, password: str) -> List[str]:
         result = []
         driver_key = self.open_browser()
-        self.login(
-            self.drivers[driver_key], username=self._username, password=self._password
-        )
+        self.login(self.drivers[driver_key], username, password)
         input_wait = WebDriverWait(self.drivers[driver_key], timeout=20)
         try:
             search_input = input_wait.until(
