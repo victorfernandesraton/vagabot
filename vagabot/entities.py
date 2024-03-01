@@ -33,8 +33,9 @@ class AuthorStatus(Enum):
 @dataclass(frozen=True)
 class Author:
     id: Optional[uuid.UUID] = field(default_factory=lambda: None)
-    linkedin_id: str
+    linkedin_id: Optional[str] = ""
     name: str
+    description: str
     link: str
     avatar: str
     status: AuthorStatus

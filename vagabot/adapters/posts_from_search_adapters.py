@@ -1,5 +1,6 @@
 from typing import List
 from bs4 import BeautifulSoup
+from vagabot.entities import Author, Post
 
 
 class PostsFromSearchExtractor:
@@ -16,23 +17,24 @@ class PostsFromSearchExtractor:
     def __init__(self, posts: List[str]) -> None:
         self.posts = posts
 
-    def __get_author(self, soup: BeautifulSoup) -> dict:
+    def __get_author(self, soup: BeautifulSoup) -> Author:
         avatar = soup.select_one(self.AUTHOR_AVATAR_SELECTOR)
-        return {
-            "name": soup.select_one(self.AUTHOR_TITLE_SELECTOR).text.replace("\n", ""),
-            "description": soup.select_one(self.AUTHOR_DESCRIPTION_SELECTOR).text,
-            "link": avatar.get("href"),
-            "avatar_url": avatar.find("img").get("src"),
-        }
+        return Author(
+            name=soup.select_one(self.AUTHOR_TITLE_SELECTOR).text.replace("\n", ""),
+            description=soup.select_one(self.AUTHOR_DESCRIPTION_SELECTOR).text,
+            avatar_url=avatar.find("img").get("src"),
+            link=avatar.get("href"),
+        )
 
-    def __get_publication(self, soup: BeautifulSoup) -> dict:
+    def __get_publication(self, soup: BeautifulSoup, author: Author) -> Post:
         urn = soup.select_one(self.POST_LINK_SELECTOR).get("data-urn")
 
-        return {
-            "id": urn,
-            "content": soup.select_one(self.POST_CONTENT_SELECTOR).text,
-            "link": f"https://www.linkedin.com/feed/update/{urn}",
-        }
+        return Post(
+            linkedin_id=urn,
+            content=soup.select_one(self.POST_CONTENT_SELECTOR).text,
+            link=f"https://www.linkedin.com/feed/update/{urn}",
+            author_id=author.id,
+        )
 
     def __to_dict(self, post: str) -> dict:
         soup = BeautifulSoup(post, features="lxml")
@@ -40,10 +42,9 @@ class PostsFromSearchExtractor:
         if not urn:
             return None
 
-        return {
-            "author": self.__get_author(soup),
-            "post": self.__get_publication(soup),
-        }
+        author = self.__get_author(soup)
+        post = self.__get_publication(soup, author)
+        return {"author": author, "post": post}
 
     def to_dict(self) -> List[dict]:
         result = []

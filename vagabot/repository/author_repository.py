@@ -1,15 +1,13 @@
 from typing import Optional
 import uuid
-import sqlite3
+from sqlite3 import OperationalError
 from entities import Author, AuthorStatus
 from typing import List
 
+from vagabot.repository.repository import SqliteRepository
 
-class AuthorRepository:
-    def __init__(self):
-        self.conn = sqlite3.connect("posts.db")
-        self.cursor = self.conn.cursor()
 
+class AuthorRepository(SqliteRepository):
     def create_table_ddl(self):
         self.cursor.execute(
             """
@@ -17,6 +15,7 @@ class AuthorRepository:
                 id TEXT PRIMARY KEY,
                 linkedin_id TEXT,
                 name TEXT,
+                description TEXT,
                 link TEXT,
                 avatar TEXT,
                 status INTEGER
@@ -30,13 +29,14 @@ class AuthorRepository:
     def create(self, author: Author):
         self.cursor.execute(
             """
-            INSERT INTO authors (id, linkedin_id, name, link, avatar, status)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO authors (id, linkedin_id, name, description, link, avatar, status)
+            VALUES (?, ?, ?, ?, ?, ? , ?)
             """,
             (
                 str(author.id),
                 author.linkedin_id,
                 author.name,
+                author.description,
                 author.link,
                 author.avatar,
                 author.status.value,
@@ -53,9 +53,10 @@ class AuthorRepository:
             return Author(
                 linkedin_id=row[1],
                 name=row[2],
-                link=row[3],
-                avatar=row[4],
-                status=AuthorStatus(row[5]),
+                description=row[3],
+                link=row[4],
+                avatar=row[5],
+                status=AuthorStatus(row[6]),
                 id=row[0],
             )
         return None
@@ -69,9 +70,10 @@ class AuthorRepository:
             Author(
                 linkedin_id=row[1],
                 name=row[2],
-                link=row[3],
-                avatar=row[4],
-                status=AuthorStatus(row[5]),
+                description=row[3],
+                link=row[4],
+                avatar=row[5],
+                status=AuthorStatus(row[6]),
                 id=row[0],
             )
             for row in rows
@@ -83,12 +85,13 @@ class AuthorRepository:
             self.cursor.execute(
                 """
                 UPDATE authors
-                SET linkedin_id = ?, name = ?, link = ?, avatar = ?, status = ?
+                SET linkedin_id = ?, name = ?, author = ? ,link = ?, avatar = ?, status = ?
                 WHERE id = ?
                 """,
                 (
                     author.linkedin_id,
                     author.name,
+                    author.description,
                     author.link,
                     author.avatar,
                     author.status.value,
@@ -96,16 +99,17 @@ class AuthorRepository:
                 ),
             )
             self.conn.commit()
-        except sqlite3.OperationalError:
+        except OperationalError:
             self.cursor.execute(
                 """
-                INSERT INTO authors (id, linkedin_id, name, link, avatar, status)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO authors (id, linkedin_id, name, description,link, avatar, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     str(author.id),
                     author.linkedin_id,
                     author.name,
+                    author.description,
                     author.link,
                     author.avatar,
                     author.status.value,

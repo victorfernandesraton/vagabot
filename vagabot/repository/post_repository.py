@@ -1,15 +1,12 @@
 from typing import Optional
 import uuid
-import sqlite3
+from sqlite3 import OperationalError
 from typing import List
 from vagabot.entities import Post, PostStatus
+from vagabot.repository.repository import SqliteRepository
 
 
-class PostRepository:
-    def __init__(self):
-        self.conn = sqlite3.connect("posts.db")
-        self.cursor = self.conn.cursor()
-
+class PostRepository(SqliteRepository):
     def create_table_ddl(self):
         self.cursor.execute(
             """
@@ -19,6 +16,7 @@ class PostRepository:
                 author_id TEXT,
                 content TEXT,
                 status INTEGER
+                FOREIGN KEY(author_id) REFERENCES authors(id)
             )
             """
         )
@@ -114,7 +112,7 @@ class PostRepository:
                 ),
             )
             self.conn.commit()
-        except sqlite3.OperationalError:
+        except OperationalError:
             self.cursor.execute(
                 """
                 INSERT INTO posts (id, likedin_id, author_id, content, status)
