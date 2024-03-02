@@ -12,11 +12,11 @@ services:
       # this define host for selenium grid router, if you runing outside container is should be http://localhost:4444 by default
       - SE_ROUTER_HOST=selenium-router
       - SE_ROUTER_PORT=4444
-      - DB_FILENAME=vagabot.db
+      - DB_FILENAME=./db/vagabot.db
     depends_on:
       - selenium-router
     volumes:
-      - ./vagabot.db:/usr/app/vagabot.db
+      - ./db:/usr/app/db
 
   selenium-event-bus:
     image: selenium/event-bus:4.1.1-20211217

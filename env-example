@@ -1,2 +1,5 @@
 LINKEDIN_EMAIL=<your email>
 LINKEDIN_PASS=<your password>
+DB_FILENAME=./db/vagabot.db
+SE_ROUTER_HOST=localhost
+SE_ROUTER_PORT=4444

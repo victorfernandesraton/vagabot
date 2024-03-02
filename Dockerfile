@@ -16,7 +16,5 @@ RUN poetry install --no-interaction
 COPY ./vagabot/ ./vagabot/
 COPY script.py ./
 
-RUN ls -la
-
 # Set the entrypoint to run your script
 ENTRYPOINT ["python", "script.py"]
