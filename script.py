@@ -78,7 +78,7 @@ def main():
         result = search_posts(args)
         print(result)
         for item in result:
-            author_repository.upsert_by_linkk(item["author"])
+            author_repository.upsert_by_link(item["author"])
             post_repository.upsert_by_linkedin_id(item["post"])
 
     elif args.command == "post-comment":

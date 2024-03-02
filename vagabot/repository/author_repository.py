@@ -1,6 +1,6 @@
 from typing import Optional
 import uuid
-from sqlite3 import OperationalError
+from sqlite3 import IntegrityError
 from vagabot.entities import Author, AuthorStatus
 
 from vagabot.repository.repository import SqliteRepository
@@ -12,7 +12,6 @@ class AuthorRepository(SqliteRepository):
             """
             CREATE TABLE IF NOT EXISTS authors (
                 id TEXT PRIMARY KEY,
-                linkedin_id TEXT,
                 name TEXT,
                 description TEXT,
                 link TEXT,
@@ -23,6 +22,17 @@ class AuthorRepository(SqliteRepository):
         )
 
         self.conn.commit()
+
+    def count_authors(self) -> int:
+        row = self.cursor.execute(
+            "SELECT COUNT(*) FROM authors WHERE status != ?",
+            (AuthorStatus.DELETED.value,),
+        ).fetchone()
+
+        if not row:
+            return 0
+
+        return int(row[0])
 
     def get_by_id(self, author_id: uuid.UUID) -> Optional[Author]:
         self.cursor.execute("SELECT * FROM authors WHERE id = ?", (str(author_id),))
@@ -52,8 +62,25 @@ class AuthorRepository(SqliteRepository):
             )
         return None
 
-    def upsert_by_linkk(self, author: Author) -> Optional[Author]:
+    def upsert_by_link(self, author: Author) -> Optional[Author]:
         try:
+            self.cursor.execute(
+                """
+                INSERT INTO authors (id, name, description,link, avatar, status)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(author.id),
+                    author.name,
+                    author.description,
+                    author.link,
+                    author.avatar,
+                    author.status.value,
+                ),
+            )
+            self.conn.commit()
+
+        except IntegrityError:
             self.cursor.execute(
                 """
                 UPDATE authors
@@ -69,23 +96,6 @@ class AuthorRepository(SqliteRepository):
                 ),
             )
             self.conn.commit()
-        except OperationalError:
-            self.cursor.execute(
-                """
-                INSERT INTO authors (id, name, description,link, avatar, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    str(author.id),
-                    author.name,
-                    author.description,
-                    author.link,
-                    author.avatar,
-                    author.status.value,
-                ),
-            )
-            self.conn.commit()
-
         return self.get_by_link(author.link)
 
     def close(self):
