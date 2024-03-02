@@ -1,5 +1,5 @@
-from sqlite3 import Connection
 from abc import abstractmethod
+from sqlite3 import Connection
 
 
 class SqliteRepository:

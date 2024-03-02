@@ -1,12 +1,14 @@
-from vagabot.workflows.linkedin_auth import LinkedinAuth
-import numpy as np
-from decouple import config
 from concurrent.futures import ThreadPoolExecutor
+
+import numpy as np
+import selenium.webdriver.support.expected_conditions as EC
+from decouple import config
+from selenium.common import exceptions
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common import exceptions
-import selenium.webdriver.support.expected_conditions as EC
+
+from vagabot.workflows.linkedin_auth import LinkedinAuth
 
 
 class LinkedinCommentPost(LinkedinAuth):

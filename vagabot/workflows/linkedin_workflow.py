@@ -53,5 +53,4 @@ class LinkedinWorkflow:
             self.close(driver_key)
 
     @abstractmethod
-    def execute(self, *args, **kwargs):
-        ...
+    def execute(self, *args, **kwargs): ...

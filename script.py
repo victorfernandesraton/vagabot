@@ -1,12 +1,13 @@
 import argparse
 import sqlite3
-from vagabot.workflows.linkedin_get_posts import LinkedinGetPosts
-from vagabot.repository.post_repository import PostRepository
-from vagabot.repository.author_repository import AuthorRepository
-from vagabot.adapters.posts_from_search_adapters import PostsFromSearchExtractor
+import sys
+
 from decouple import config
 
-import sys
+from vagabot.adapters.posts_from_search_adapters import PostsFromSearchExtractor
+from vagabot.repository.author_repository import AuthorRepository
+from vagabot.repository.post_repository import PostRepository
+from vagabot.workflows.linkedin_get_posts import LinkedinGetPosts
 
 
 def search_posts(args) -> list:

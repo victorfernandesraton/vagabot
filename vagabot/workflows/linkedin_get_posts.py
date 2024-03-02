@@ -1,11 +1,13 @@
 import time
-from vagabot.workflows.linkedin_auth import LinkedinAuth
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common import exceptions
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
 from typing import List
+
+from selenium.common import exceptions
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+
+from vagabot.workflows.linkedin_auth import LinkedinAuth
 
 
 class LinkedinGetPosts(LinkedinAuth):
