@@ -48,6 +48,10 @@ class LinkedinWorkflow:
         self.drivers[driver_key].close()
         del self.drivers[driver_key]
 
+    def __del__(self):
+        for driver_key in list(self.drivers.keys()):
+            self.close(driver_key)
+
     @abstractmethod
     def execute(self, *args, **kwargs):
         ...
