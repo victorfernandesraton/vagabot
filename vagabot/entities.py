@@ -1,7 +1,7 @@
-from dataclasses import dataclass
+import uuid
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
-import uuid
 
 
 class PostStatus(Enum):
@@ -17,7 +17,7 @@ class Post:
     author_id: str
     content: str
     status: PostStatus = PostStatus.CREATED
-    id: str = uuid.uuid4().hex
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
 
 class AuthorStatus(Enum):
@@ -31,7 +31,7 @@ class AuthorStatus(Enum):
 class Author:
     name: str
     link: str
-    avatar: str
+    avatar: str = ""
     status: AuthorStatus = AuthorStatus.CREATED
     description: str = ""
-    id: Optional[uuid.UUID] = uuid.uuid4().hex
+    id: str = field(default_factory=lambda: str(uuid.uuid1()))

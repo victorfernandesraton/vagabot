@@ -1,5 +1,6 @@
-from tests.conftest import read_testdata_file
 from unittest.case import TestCase
+
+from tests.conftest import read_testdata_file
 from vagabot.adapters.posts_from_search_adapters import PostsFromSearchExtractor
 
 _test = TestCase()

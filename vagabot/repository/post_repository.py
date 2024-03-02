@@ -1,7 +1,6 @@
-from typing import Optional
-import uuid
-from sqlite3 import OperationalError
-from typing import List
+from sqlite3 import IntegrityError
+from typing import List, Optional
+
 from vagabot.entities import Post, PostStatus
 from vagabot.repository.repository import SqliteRepository
 
@@ -12,7 +11,7 @@ class PostRepository(SqliteRepository):
             """
             CREATE TABLE IF NOT EXISTS posts (
                 id TEXT PRIMARY KEY,
-                linkedin_id TEXT,
+                linkedin_id TEXT UNIQUE,
                 link TEXT,
                 author_id TEXT,
                 content TEXT,
@@ -24,7 +23,18 @@ class PostRepository(SqliteRepository):
 
         self.conn.commit()
 
-    def get_by_id(self, post_id: uuid.UUID) -> Optional[Post]:
+    def count_posts(self) -> int:
+        row = self.cursor.execute(
+            "SELECT COUNT(*) FROM posts WHERE status != ?",
+            (PostStatus.DELETED.value,),
+        ).fetchone()
+
+        if not row:
+            return 0
+
+        return int(row[0])
+
+    def get_by_id(self, post_id: str) -> Optional[Post]:
         self.cursor.execute("SELECT * FROM posts WHERE id = ?", (str(post_id),))
         row = self.cursor.fetchone()
         if row:
@@ -87,6 +97,22 @@ class PostRepository(SqliteRepository):
         try:
             self.cursor.execute(
                 """
+                INSERT INTO posts (id, linkedin_id, link, author_id, content, status)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(post.id),
+                    post.linkedin_id,
+                    post.link,
+                    post.author_id,
+                    post.content,
+                    post.status.value,
+                ),
+            )
+            self.conn.commit()
+        except IntegrityError:
+            self.cursor.execute(
+                """
                 UPDATE posts
                 SET author_id = ?, content = ?, status = ?, link = ?
                 WHERE linkedin_id = ?
@@ -97,22 +123,6 @@ class PostRepository(SqliteRepository):
                     post.status.value,
                     post.link,
                     post.linkedin_id,
-                ),
-            )
-            self.conn.commit()
-        except OperationalError:
-            self.cursor.execute(
-                """
-                INSERT INTO posts (id, linkedin_id, link, author_id, content, status)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (
-                    str(post.id),
-                    post.linkedin_id,
-                    post.link,
-                    post.author_id,
-                    post.content,
-                    post.status.value,
                 ),
             )
             self.conn.commit()

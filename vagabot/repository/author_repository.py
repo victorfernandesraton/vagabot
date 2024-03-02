@@ -1,8 +1,8 @@
-from typing import Optional
 import uuid
 from sqlite3 import IntegrityError
-from vagabot.entities import Author, AuthorStatus
+from typing import Optional
 
+from vagabot.entities import Author, AuthorStatus
 from vagabot.repository.repository import SqliteRepository
 
 
@@ -14,7 +14,7 @@ class AuthorRepository(SqliteRepository):
                 id TEXT PRIMARY KEY,
                 name TEXT,
                 description TEXT,
-                link TEXT,
+                link TEXT UNIQUE,
                 avatar TEXT,
                 status INTEGER
             )

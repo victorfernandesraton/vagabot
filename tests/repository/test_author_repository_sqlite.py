@@ -1,9 +1,9 @@
-from vagabot.repository.author_repository import AuthorRepository
-from vagabot.entities import Author, AuthorStatus
 import sqlite3
-from tests.conftest import db, author_repository_fixture
-
 from unittest.case import TestCase
+
+from tests.conftest import author_repository_fixture, db
+from vagabot.entities import Author, AuthorStatus
+from vagabot.repository.author_repository import AuthorRepository
 
 _test = TestCase()
 
@@ -28,7 +28,6 @@ def test_create_author(db, author_repository_fixture):
     _test.assertEqual(author_param.name, created_author.name)
     _test.assertEqual(author_param.link, created_author.link)
     _test.assertEqual(AuthorStatus.CREATED, created_author.status)
-    repository.close()
 
 
 def test_upsert_author(db, author_repository_fixture):
@@ -67,7 +66,6 @@ def test_upsert_author(db, author_repository_fixture):
 
     count_authors = repository.count_authors()
     _test.assertEqual(count_authors, 1)
-    repository.close()
 
 
 def test_by_id(db, author_repository_fixture):
