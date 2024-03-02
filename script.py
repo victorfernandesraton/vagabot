@@ -33,9 +33,7 @@ def post_comment(args, posts: list, post_repository: PostRepository):
 
 
 def main():
-    conn = sqlite3.connect(
-        "vagabot.db",
-    )
+    conn = sqlite3.connect(config("DB_FILENAME"))
     author_repository = AuthorRepository(conn)
     author_repository.create_table_ddl()
     post_repository = PostRepository(conn)
