@@ -79,6 +79,23 @@ class PostRepository(SqliteRepository):
             )
         return None
 
+    def get_by_status(self, status: PostStatus) -> Optional[Post]:
+        self.cursor.execute(
+            "SELECT * FROM posts WHERE status = ?", (int(status.value),)
+        )
+        rows = self.cursor.fetchall()
+        return [
+            Post(
+                linkedin_id=row[1],
+                link=row[2],
+                author_id=row[3],
+                content=row[4],
+                status=PostStatus(row[5]),
+                id=row[0],
+            )
+            for row in rows
+        ]
+
     def set_deleted(self, post: Post):
         self.cursor.execute(
             """

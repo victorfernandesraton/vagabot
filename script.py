@@ -8,6 +8,8 @@ from vagabot.adapters.posts_from_search_adapters import PostsFromSearchExtractor
 from vagabot.repository.author_repository import AuthorRepository
 from vagabot.repository.post_repository import PostRepository
 from vagabot.workflows.linkedin_get_posts import LinkedinGetPosts
+from vagabot.workflows.linkedin_comment_post import LinkedinCommentPost
+from vagabot.entities import PostStatus
 
 
 def search_posts(args) -> list:
@@ -21,11 +23,13 @@ def search_posts(args) -> list:
     return result
 
 
-def post_comment(args):
+def post_comment(args, posts: list, post_repository: PostRepository):
     """
     Function to post a comment.
     """
     print(f"Posting comment: {args.comment}")
+    service = LinkedinCommentPost(args.comment, post_repository)
+    service.execute(posts, username=args.user, password=args.password)
 
 
 def main():
@@ -83,7 +87,8 @@ def main():
             post_repository.upsert_by_linkedin_id(item["post"])
 
     elif args.command == "post-comment":
-        post_comment(args)
+        posts_uncommented = post_repository.get_by_status(PostStatus.CREATED)
+        post_comment(args, posts_uncommented, post_repository=post_repository)
     else:
         parser.print_help()
         sys.exit(1)
