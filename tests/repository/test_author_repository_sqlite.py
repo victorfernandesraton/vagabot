@@ -1,6 +1,7 @@
 from vagabot.repository.author_repository import AuthorRepository
 from vagabot.entities import Author, AuthorStatus
 import sqlite3
+from tests.conftest import db, author_repository_fixture
 
 from unittest.case import TestCase
 
@@ -8,18 +9,17 @@ _test = TestCase()
 
 conn = sqlite3.connect("file::memory:?cache=shared", uri=True)
 
-repository = AuthorRepository(conn)
 
-
-def test_create_database_dql():
+def test_create_database_dql(db):
+    repository = AuthorRepository(conn)
     try:
         repository.create_table_ddl()
     except Exception as err:
         _test.assertIsNone(err)
 
 
-def test_create_author():
-    repository.create_table_ddl()
+def test_create_author(db, author_repository_fixture):
+    repository = author_repository_fixture
     author_param = Author(
         name="Victor Raton", link="https://linkedin.com/in/v_raton", avatar=""
     )
@@ -28,10 +28,11 @@ def test_create_author():
     _test.assertEqual(author_param.name, created_author.name)
     _test.assertEqual(author_param.link, created_author.link)
     _test.assertEqual(AuthorStatus.CREATED, created_author.status)
+    repository.close()
 
 
-def test_upsert_author():
-    repository.create_table_ddl()
+def test_upsert_author(db, author_repository_fixture):
+    repository = author_repository_fixture
     count_authors = repository.count_authors()
     _test.assertEqual(count_authors, 0)
     author_param = Author(
@@ -66,3 +67,30 @@ def test_upsert_author():
 
     count_authors = repository.count_authors()
     _test.assertEqual(count_authors, 1)
+    repository.close()
+
+
+def test_by_id(db, author_repository_fixture):
+    repository = author_repository_fixture
+    author_param = Author(
+        name="Victor Raton", link="https://linkedin.com/in/v_raton", avatar=""
+    )
+    created_author = repository.upsert_by_link(author_param)
+    finded_author = repository.get_by_id(author_param.id)
+
+    _test.assertEqual(created_author.id, finded_author.id)
+    _test.assertEqual(created_author.name, finded_author.name)
+    _test.assertEqual(created_author.link, finded_author.link)
+
+
+def test_by_link(db, author_repository_fixture):
+    repository = author_repository_fixture
+    author_param = Author(
+        name="Victor Raton", link="https://linkedin.com/in/v_raton", avatar=""
+    )
+    created_author = repository.upsert_by_link(author_param)
+    finded_author = repository.get_by_link(author_param.link)
+
+    _test.assertEqual(created_author.id, finded_author.id)
+    _test.assertEqual(created_author.name, finded_author.name)
+    _test.assertEqual(created_author.link, finded_author.link)
