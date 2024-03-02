@@ -12,9 +12,9 @@ def test_get_data_from_post(read_testdata_file):
     _test.assertEqual(len(result), 1)
 
     first_post = result[0]
-    _test.assertIn("Claudia Antunes", first_post["author"]["name"])
+    _test.assertIn("Claudia Antunes", first_post["author"].name)
 
     _test.assertIn(
-        first_post["post"]["link"],
+        first_post["post"].link,
         "https://www.linkedin.com/feed/update/urn:li:activity:7029104699224039424",
     )

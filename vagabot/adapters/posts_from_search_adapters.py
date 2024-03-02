@@ -22,7 +22,7 @@ class PostsFromSearchExtractor:
         return Author(
             name=soup.select_one(self.AUTHOR_TITLE_SELECTOR).text.replace("\n", ""),
             description=soup.select_one(self.AUTHOR_DESCRIPTION_SELECTOR).text,
-            avatar_url=avatar.find("img").get("src"),
+            avatar=avatar.find("img").get("src"),
             link=avatar.get("href"),
         )
 
@@ -31,9 +31,9 @@ class PostsFromSearchExtractor:
 
         return Post(
             linkedin_id=urn,
-            content=soup.select_one(self.POST_CONTENT_SELECTOR).text,
             link=f"https://www.linkedin.com/feed/update/{urn}",
             author_id=author.id,
+            content=soup.select_one(self.POST_CONTENT_SELECTOR).text,
         )
 
     def __to_dict(self, post: str) -> dict:

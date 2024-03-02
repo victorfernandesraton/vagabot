@@ -1,8 +1,7 @@
 from typing import Optional
 import uuid
 from sqlite3 import OperationalError
-from entities import Author, AuthorStatus
-from typing import List
+from vagabot.entities import Author, AuthorStatus
 
 from vagabot.repository.repository import SqliteRepository
 
@@ -24,90 +23,60 @@ class AuthorRepository(SqliteRepository):
         )
 
         self.conn.commit()
-        self.conn.close()
-
-    def create(self, author: Author):
-        self.cursor.execute(
-            """
-            INSERT INTO authors (id, linkedin_id, name, description, link, avatar, status)
-            VALUES (?, ?, ?, ?, ?, ? , ?)
-            """,
-            (
-                str(author.id),
-                author.linkedin_id,
-                author.name,
-                author.description,
-                author.link,
-                author.avatar,
-                author.status.value,
-            ),
-        )
-        self.conn.commit()
 
     def get_by_id(self, author_id: uuid.UUID) -> Optional[Author]:
-        self.cursor.execute(
-            "SELECT * FROM authors WHERE id = ? LIMIT 1", (str(author_id),)
-        )
+        self.cursor.execute("SELECT * FROM authors WHERE id = ?", (str(author_id),))
         row = self.cursor.fetchone()
         if row:
             return Author(
-                linkedin_id=row[1],
-                name=row[2],
-                description=row[3],
-                link=row[4],
-                avatar=row[5],
-                status=AuthorStatus(row[6]),
+                name=row[1],
+                description=row[2],
+                link=row[3],
+                avatar=row[4],
+                status=AuthorStatus(row[5]),
                 id=row[0],
             )
         return None
 
-    def get_by_linkedin_id(self, linkedin_id: str) -> List[Author]:
-        self.cursor.execute(
-            "SELECT * FROM authors WHERE linkedin_id = ?", (linkedin_id,)
-        )
-        rows = self.cursor.fetchall()
-        return [
-            Author(
-                linkedin_id=row[1],
-                name=row[2],
-                description=row[3],
-                link=row[4],
-                avatar=row[5],
-                status=AuthorStatus(row[6]),
+    def get_by_link(self, link: str) -> Optional[Author]:
+        self.cursor.execute("SELECT * FROM authors WHERE link = ?", (str(link),))
+        row = self.cursor.fetchone()
+        if row:
+            return Author(
+                name=row[1],
+                description=row[2],
+                link=row[3],
+                avatar=row[4],
+                status=AuthorStatus(row[5]),
                 id=row[0],
             )
-            for row in rows
-        ]
+        return None
 
-    def upsert(self, author: Author):
-        # Upsert logic: try to update, if not exists, insert
+    def upsert_by_linkk(self, author: Author) -> Optional[Author]:
         try:
             self.cursor.execute(
                 """
                 UPDATE authors
-                SET linkedin_id = ?, name = ?, author = ? ,link = ?, avatar = ?, status = ?
-                WHERE id = ?
+                SET name = ?, description = ?, avatar = ?, status = ?
+                WHERE link = ?
                 """,
                 (
-                    author.linkedin_id,
                     author.name,
                     author.description,
-                    author.link,
                     author.avatar,
                     author.status.value,
-                    str(author.id),
+                    str(author.link),
                 ),
             )
             self.conn.commit()
         except OperationalError:
             self.cursor.execute(
                 """
-                INSERT INTO authors (id, linkedin_id, name, description,link, avatar, status)
+                INSERT INTO authors (id, name, description,link, avatar, status)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     str(author.id),
-                    author.linkedin_id,
                     author.name,
                     author.description,
                     author.link,
@@ -116,6 +85,8 @@ class AuthorRepository(SqliteRepository):
                 ),
             )
             self.conn.commit()
+
+        return self.get_by_link(author.link)
 
     def close(self):
         self.conn.close()

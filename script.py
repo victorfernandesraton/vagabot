@@ -1,17 +1,23 @@
 import argparse
+import sqlite3
 from vagabot.workflows.linkedin_get_posts import LinkedinGetPosts
+from vagabot.repository.post_repository import PostRepository
+from vagabot.repository.author_repository import AuthorRepository
+from vagabot.adapters.posts_from_search_adapters import PostsFromSearchExtractor
 from decouple import config
 
 import sys
 
 
-def search_posts(args):
+def search_posts(args) -> list:
     """
     Function to search posts.
     """
     service = LinkedinGetPosts()
     print(f"Searching posts with query: {args.query} in {args.user}")
-    service.execute(args.query, args.user, args.password)
+    finded_posts = service.execute(args.query, args.user, args.password)
+    result = PostsFromSearchExtractor(finded_posts).to_dict()
+    return result
 
 
 def post_comment(args):
@@ -22,6 +28,14 @@ def post_comment(args):
 
 
 def main():
+    conn = sqlite3.connect(
+        "vagabot.db",
+    )
+    author_repository = AuthorRepository(conn)
+    author_repository.create_table_ddl()
+    post_repository = PostRepository(conn)
+    post_repository.create_table_ddl()
+
     # create common argarse without helper to keep global args
     common = argparse.ArgumentParser(add_help=False)
 
@@ -61,7 +75,12 @@ def main():
     args = parser.parse_args()
 
     if args.command == "search-posts":
-        search_posts(args)
+        result = search_posts(args)
+        print(result)
+        for item in result:
+            author_repository.upsert_by_linkk(item["author"])
+            post_repository.upsert_by_linkedin_id(item["post"])
+
     elif args.command == "post-comment":
         post_comment(args)
     else:

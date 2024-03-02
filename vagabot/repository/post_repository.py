@@ -12,32 +12,16 @@ class PostRepository(SqliteRepository):
             """
             CREATE TABLE IF NOT EXISTS posts (
                 id TEXT PRIMARY KEY,
-                likedin_id TEXT,
+                linkedin_id TEXT,
+                link TEXT,
                 author_id TEXT,
                 content TEXT,
-                status INTEGER
+                status INTEGER,
                 FOREIGN KEY(author_id) REFERENCES authors(id)
             )
             """
         )
 
-        self.conn.commit()
-        self.conn.close()
-
-    def create(self, post: Post):
-        self.cursor.execute(
-            """
-            INSERT INTO posts (id, likedin_id, author_id, content, status)
-            VALUES (?, ?, ?, ?, ?)
-            """,
-            (
-                str(post.id),
-                post.likedin_id,
-                post.author_id,
-                post.content,
-                post.status.value,
-            ),
-        )
         self.conn.commit()
 
     def get_by_id(self, post_id: uuid.UUID) -> Optional[Post]:
@@ -45,10 +29,11 @@ class PostRepository(SqliteRepository):
         row = self.cursor.fetchone()
         if row:
             return Post(
-                likedin_id=row[1],
-                author_id=row[2],
-                content=row[3],
-                status=PostStatus(row[4]),
+                linkedin_id=row[1],
+                link=row[2],
+                author_id=row[3],
+                content=row[4],
+                status=PostStatus(row[5]),
                 id=row[0],
             )
         return None
@@ -58,28 +43,31 @@ class PostRepository(SqliteRepository):
         rows = self.cursor.fetchall()
         return [
             Post(
-                likedin_id=row[1],
-                author_id=row[2],
-                content=row[3],
-                status=PostStatus(row[4]),
+                linkedin_id=row[1],
+                link=row[2],
+                author_id=row[3],
+                content=row[4],
+                status=PostStatus(row[5]),
                 id=row[0],
             )
             for row in rows
         ]
 
-    def get_by_linkedin_id(self, likedin_id: str) -> List[Post]:
-        self.cursor.execute("SELECT * FROM posts WHERE likedin_id = ?", (likedin_id,))
-        rows = self.cursor.fetchall()
-        return [
-            Post(
-                likedin_id=row[1],
-                author_id=row[2],
-                content=row[3],
-                status=PostStatus(row[4]),
+    def get_by_linkedin_id(self, linkedin_id: str) -> Optional[Post]:
+        self.cursor.execute(
+            "SELECT * FROM posts WHERE linkedin_id = ?", (str(linkedin_id),)
+        )
+        row = self.cursor.fetchone()
+        if row:
+            return Post(
+                linkedin_id=row[1],
+                link=row[2],
+                author_id=row[3],
+                content=row[4],
+                status=PostStatus(row[5]),
                 id=row[0],
             )
-            for row in rows
-        ]
+        return None
 
     def set_deleted(self, post: Post):
         self.cursor.execute(
@@ -95,38 +83,41 @@ class PostRepository(SqliteRepository):
         )
         self.conn.commit()
 
-    def upsert(self, post: Post):
+    def upsert_by_linkedin_id(self, post: Post) -> Optional[Post]:
         try:
             self.cursor.execute(
                 """
                 UPDATE posts
-                SET likedin_id = ?, author_id = ?, content = ?, status = ?
-                WHERE id = ?
+                SET author_id = ?, content = ?, status = ?, link = ?
+                WHERE linkedin_id = ?
                 """,
                 (
-                    post.likedin_id,
                     post.author_id,
                     post.content,
                     post.status.value,
-                    str(post.id),
+                    post.link,
+                    post.linkedin_id,
                 ),
             )
             self.conn.commit()
         except OperationalError:
             self.cursor.execute(
                 """
-                INSERT INTO posts (id, likedin_id, author_id, content, status)
+                INSERT INTO posts (id, linkedin_id, link, author_id, content, status)
                 VALUES (?, ?, ?, ?, ?)
                 """,
                 (
                     str(post.id),
-                    post.likedin_id,
+                    post.linkedin_id,
+                    post.link,
                     post.author_id,
                     post.content,
                     post.status.value,
                 ),
             )
             self.conn.commit()
+
+        return self.get_by_linkedin_id(post.linkedin_id)
 
     def close(self):
         self.conn.close()

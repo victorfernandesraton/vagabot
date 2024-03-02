@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 import uuid
@@ -10,17 +10,14 @@ class PostStatus(Enum):
     DELETED = 0
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Post:
-    likedin_id: str
+    linkedin_id: str
+    link: str
     author_id: str
     content: str
-    status: PostStatus
-    id: Optional[uuid.UUID] = field(default_factory=lambda: None)
-
-    def __post_init__(self):
-        if self.id is None:
-            self.id = uuid.uuid4()
+    status: PostStatus = PostStatus.CREATED
+    id: str = uuid.uuid4().hex
 
 
 class AuthorStatus(Enum):
@@ -30,16 +27,11 @@ class AuthorStatus(Enum):
     DELETED = 0
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Author:
-    id: Optional[uuid.UUID] = field(default_factory=lambda: None)
-    linkedin_id: Optional[str] = ""
     name: str
-    description: str
     link: str
     avatar: str
-    status: AuthorStatus
-
-    def __post_init__(self):
-        if self.id is None:
-            self.id = uuid.uuid4()
+    status: AuthorStatus = AuthorStatus.CREATED
+    description: str = ""
+    id: Optional[uuid.UUID] = uuid.uuid4().hex
