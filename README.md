@@ -14,9 +14,9 @@ O vagabot é um projeto que consiste em automatizar o processo de buscar postage
 - Docker e Docker compose
 
 ## Instalação
-O projeto foi feito todo para rodar em anbiente docker, sem precisar de ajustes , mas você pode rodar ele na sua maquina host subindo apenas os containeres do Selenium grid
+O projeto foi feito todo para rodar em ambiente docker, sem precisar de ajustes , mas você pode rodar ele na sua maquina host subindo apenas os containeres do Selenium grid
 
-### No anbiente docker
+### No ambiente docker
 Basta contruir o container do projeto com:
 
 ```bash
@@ -39,7 +39,7 @@ docker-compose run worker get-posts -u <email> -p <password> -q "Vaga AND javasc
 docker-compose run worker post-comment -u <email> -p <password> -c "Gostaria de participar, entre em contato comuigo pelo direct"
 
 ```
-### No anbiente python
+### No ambiente python
 
 __AVISO__: Este modo considera que você sabe o que está fazendo
 
@@ -55,7 +55,7 @@ docker-compose up
 Depois basta construir o CLI com base no Dockerfile usando o poety como ferramenta de distribuição
 
 ```bash
-# Inicia um anbiente virtual de sua preferência
+# Inicia um ambiente virtual de sua preferência
 pipx run poetry shell
 
 # Instala as dependencias
@@ -71,8 +71,8 @@ python get-posts -u <email> -p <password> -q "Vaga AND javascript AND remoto"
 python script.py post-comment -u <email> -p <password> -c "Gostaria de participar, entre em contato comuigo pelo direct"
 
 ```
-## Configurações e variaveis de anbiente:
-Por padrão o CLI exige que informe no comando o login e o email do usuário do linkedin o qual quer usar na automação, porém isso pode ser adicionado como variável de anbiente, assim como é visto no arquivo env-example
+## Configurações e variaveis de ambiente:
+Por padrão o CLI exige que informe no comando o login e o email do usuário do linkedin o qual quer usar na automação, porém isso pode ser adicionado como variável de ambiente, assim como é visto no arquivo env-example
 - LINKEDIN_EMAI para seu email de usuário
 - LINKEDIN_PASS para a senha do linkedin 
 - DB_FILENAME para o arquivo do sqlite
