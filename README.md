@@ -73,7 +73,7 @@ python script.py post-comment -u <email> -p <password> -c "Gostaria de participa
 ```
 ## Configurações e variaveis de ambiente:
 Por padrão o CLI exige que informe no comando o login e o email do usuário do linkedin o qual quer usar na automação, porém isso pode ser adicionado como variável de ambiente, assim como é visto no arquivo env-example
-- LINKEDIN_EMAI para seu email de usuário
+- LINKEDIN_EMAIL para seu email de usuário
 - LINKEDIN_PASS para a senha do linkedin 
 - DB_FILENAME para o arquivo do sqlite
 - SE_ROUTER_HOST para o hostname do selenium grid
