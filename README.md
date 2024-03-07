@@ -33,7 +33,7 @@ Depois basta usar o cli a partir do comando docker compose run
 docker-compose run worker --help
 
 # Faz uma busca por postagens usando a query "Vaga AND javascript AND remoto" sendo -u e -p email de login e senha do linkedin
-docker-compose run worker get-posts -u <email> -p <password> -q "Vaga AND javascript AND remoto"
+docker-compose run worker search-posts -u <email> -p <password> -q "Vaga AND javascript AND remoto"
 
 # Realiza comentários em postagens que ainda não interagiu usando o texto "Gostaria de participar, entre em contato comuigo pelo direct" sendo -u e -p email de login e senha do linkedin
 docker-compose run worker post-comment -u <email> -p <password> -c "Gostaria de participar, entre em contato comuigo pelo direct"
@@ -65,7 +65,7 @@ poetry install
 python script.py --help
 
 # Faz uma busca por postagens usando a query "Vaga AND javascript AND remoto" sendo -u e -p email de login e senha do linkedin
-python get-posts -u <email> -p <password> -q "Vaga AND javascript AND remoto"
+python search-posts -u <email> -p <password> -q "Vaga AND javascript AND remoto"
 
 # Realiza comentários em postagens que ainda não interagiu usando o texto "Gostaria de participar, entre em contato comuigo pelo direct" sendo -u e -p email de login e senha do linkedin
 python script.py post-comment -u <email> -p <password> -c "Gostaria de participar, entre em contato comuigo pelo direct"
