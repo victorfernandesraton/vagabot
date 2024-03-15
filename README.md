@@ -78,3 +78,42 @@ Por padrão o CLI exige que informe no comando o login e o email do usuário do 
 - DB_FILENAME para o arquivo do sqlite
 - SE_ROUTER_HOST para o hostname do selenium grid
 - SE_ROUTER_PORT para a porta do hsot do selenium grid
+
+# Roadmap
+Uma lista das coisas que não fiz e pretendo fazer:
+## Melhorias em bot
+- [] Implementar busca de postagem melhor
+    - [] permitir buscar mais que os 10 primeiros posts
+    - [] evitar postagens sem comentário na ação de comentário
+- [] Implementar uma melhor network
+    - [] Seguir autores
+    - [] Enviar mensagem sobre postagem
+        - [] Implementar estrutura de postagem de 
+    - [] Conectar autor (conta premiun)
+- [] Implementar estrutura de template de texto de comentário
+## Melhorias de arquitetura
+- [] Implementar arquitetura de eventos
+    - [] Ao encontrar uma postagem
+    - [] Ao comentar uma postagem
+    - [] Ao seguir um autor
+    - [] Ao se conectar a um autor
+- [] Adicionar estrutura de execuçãoo fora do CLI usando eventos para iniciar processos
+## Implementação de uma interface web
+É sugerido a implementação usando Django + Django Rest Framework + Celery por ter um admin de graça e n precisar de um cliente (fullstack)
+- [] sistema de usuários
+- [] Base de dados de credenciais do linkedin
+- [] Base de postagens encontradas
+- [] Base de autores
+    - Encontrados
+    - Que sigo
+    - Que adicionei
+- [] Base de comentários feitos
+- [] Base de mensagens enviadas
+- [] Mudar para postgres (?)
+- [] Escalonador de tarefas
+    - [] Base de ações
+        - [] Buscar posts com base em uma query
+        - [] Comentar em postagens que não comentei antes
+        - [] Seguir autores que ainda não sigo
+        - [] Conectar a autores que ainda não sigo
+        - [] Enviar mensageens a autores sobre postagens que ainda não mandei a mensagem + template de mensagem
