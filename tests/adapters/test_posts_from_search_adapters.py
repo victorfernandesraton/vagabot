@@ -18,4 +18,5 @@ def test_get_data_from_post(read_testdata_file):
     _test.assertIn(
         first_post["post"].link,
         "https://www.linkedin.com/feed/update/urn:li:activity:7029104699224039424",
+        "isort",
     )

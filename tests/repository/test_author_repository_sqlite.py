@@ -45,7 +45,6 @@ def test_upsert_author(db, author_repository_fixture):
     _test.assertEqual(author_param.description, created_author.description)
     count_authors = repository.count_authors()
     _test.assertEqual(count_authors, 1)
-
     upsert_author_params = Author(
         name=created_author.name,
         link=created_author.link,

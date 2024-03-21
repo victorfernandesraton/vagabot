@@ -5,11 +5,11 @@ import sys
 from decouple import config
 
 from vagabot.adapters.posts_from_search_adapters import PostsFromSearchExtractor
+from vagabot.entities import PostStatus
 from vagabot.repository.author_repository import AuthorRepository
 from vagabot.repository.post_repository import PostRepository
-from vagabot.workflows.linkedin_get_posts import LinkedinGetPosts
 from vagabot.workflows.linkedin_comment_post import LinkedinCommentPost
-from vagabot.entities import PostStatus
+from vagabot.workflows.linkedin_get_posts import LinkedinGetPosts
 
 
 def search_posts(args) -> list:
