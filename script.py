@@ -1,4 +1,5 @@
 import argparse
+import logging
 import sqlite3
 import sys
 
@@ -8,28 +9,44 @@ from vagabot.adapters.posts_from_search_adapters import PostsFromSearchExtractor
 from vagabot.entities import PostStatus
 from vagabot.repository.author_repository import AuthorRepository
 from vagabot.repository.post_repository import PostRepository
-from vagabot.workflows.linkedin_comment_post import LinkedinCommentPost
-from vagabot.workflows.linkedin_get_posts import LinkedinGetPosts
+from vagabot.services import BrowserService
+from vagabot.workflows import LinkedinAuth, LinkedinCommentPost, LinkedinGetPosts
+
+_se_router_host = config("SE_ROUTER_HOST", "localhost")
+_se_router_port = config("SE_ROUTER_PORT", "4444")
+
+browser_service = BrowserService(
+    se_router_host=_se_router_host, se_router_port=_se_router_port
+)
+
+
+def linkedin_auth(args) -> str:
+    logging.info(f"Login for {args.user} in linkedin")
+    service_auth = LinkedinAuth(browser_service)
+    driver_key = browser_service.open_browser()
+    service_auth.execute(driver_key, args.user, args.password)
+    return driver_key
 
 
 def search_posts(args) -> list:
-    """
-    Function to search posts.
-    """
-    service = LinkedinGetPosts()
-    print(f"Searching posts with query: {args.query} in {args.user}")
-    finded_posts = service.execute(args.query, args.user, args.password)
+    logging.info(f"Search posts: {args.query}")
+    driver_key = linkedin_auth(args)
+    service = LinkedinGetPosts(browser_service)
+    finded_posts = service.execute(args.query, driver_key)
     result = PostsFromSearchExtractor(finded_posts).to_dict()
     return result
 
 
 def post_comment(args, posts: list, post_repository: PostRepository):
-    """
-    Function to post a comment.
-    """
-    print(f"Posting comment: {args.comment}")
-    service = LinkedinCommentPost(args.comment, post_repository)
-    service.execute(posts, username=args.user, password=args.password)
+    logging.info(f"Posting comment: {args.comment}")
+    driver_key = linkedin_auth(args)
+    service = LinkedinCommentPost(
+        browser_service=browser_service,
+        post_repository=post_repository,
+        message=args.comment,
+    )
+
+    service.execute(posts, driver_key)
 
 
 def main():

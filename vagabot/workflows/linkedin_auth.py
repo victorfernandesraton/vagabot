@@ -1,13 +1,12 @@
 import logging
 import time
 
+from selenium.common import exceptions
 from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common import exceptions
 
-from vagabot.workflows.linkedin_workflow import LinkedinWorkflow
+from .linkedin_workflow import LinkedinWorkflow
 
 
 class LinkedinAuth(LinkedinWorkflow):
@@ -15,11 +14,12 @@ class LinkedinAuth(LinkedinWorkflow):
     PASSWORD_INPUT_XPATH = "//input[@id='session_password']"
     BUTTON_SUBMIT_XPATH = "//*[@id='main-content']/section/div/div/form/div/button"
 
-    def login(self, driver: WebDriver, username: str, password: str):
+    def execute(self, driver_key: str, username: str, password: str):
         logging.info("go to site")
+        driver = self.browser_service.drivers[driver_key]
         driver.maximize_window()
         driver.get("https://www.linkedin.com")
-        input_wait = WebDriverWait(driver, timeout=30)
+        input_wait = WebDriverWait(self.browser_service.drivers[driver_key], timeout=30)
         logging.info("set input")
         input_list = {
             self.USERNAME_INPUT_XPATH: username,

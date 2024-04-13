@@ -7,21 +7,19 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-from vagabot.workflows.linkedin_auth import LinkedinAuth
+from .linkedin_workflow import LinkedinWorkflow
 
 
-class LinkedinGetPosts(LinkedinAuth):
+class LinkedinGetPosts(LinkedinWorkflow):
     SEARCH_INPUT_XPATH = "//*[@id='global-nav-typeahead']/input"
     POSTS_BUTTON_SELECT = (
         "/html/body/div[5]/div[3]/div[2]/section/div/nav/div/ul/li[2]/button"
     )
-    POSTS_LIST_XPATH = "//div[@class='scaffold-finite-scroll__content']/div/div/ul/li"
+    POSTS_LIST_XPATH = "//ul[@role='list' and contains(@class, 'reusable-search__entity-result-list ')]/li"
 
-    def execute(self, queue_search: str, username: str, password: str) -> List[str]:
+    def execute(self, queue_search: str, driver_key: str) -> List[str | None]:
         result = []
-        driver_key = self.open_browser()
-        self.login(self.drivers[driver_key], username, password)
-        input_wait = WebDriverWait(self.drivers[driver_key], timeout=20)
+        input_wait = WebDriverWait(self.browser_service.drivers[driver_key], timeout=20)
         try:
             search_input = input_wait.until(
                 EC.presence_of_element_located((By.XPATH, self.SEARCH_INPUT_XPATH))
@@ -31,7 +29,7 @@ class LinkedinGetPosts(LinkedinAuth):
         except exceptions.TimeoutException:
             raise Exception("not found input here search")
 
-        self.drivers[driver_key].get(
+        self.browser_service.drivers[driver_key].get(
             f"https://www.linkedin.com/search/results/content/?keywords={queue_search}&origin=SWITCH_SEARCH_VERTICAL&sid=r01"
         )
         time.sleep(5)
@@ -46,5 +44,5 @@ class LinkedinGetPosts(LinkedinAuth):
         except exceptions.TimeoutException:
             raise Exception("not found post list")
 
-        self.close(driver_key)
+        self.browser_service.close(driver_key)
         return result
