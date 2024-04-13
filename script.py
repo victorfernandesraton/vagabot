@@ -34,6 +34,7 @@ def search_posts(args) -> list:
     service = LinkedinGetPosts(browser_service)
     finded_posts = service.execute(args.query, driver_key)
     result = PostsFromSearchExtractor(finded_posts).to_dict()
+    browser_service.close(driver_key)
     return result
 
 
@@ -45,8 +46,8 @@ def post_comment(args, posts: list, post_repository: PostRepository):
         post_repository=post_repository,
         message=args.comment,
     )
-
     service.execute(posts, driver_key)
+    browser_service.close(driver_key)
 
 
 def main():

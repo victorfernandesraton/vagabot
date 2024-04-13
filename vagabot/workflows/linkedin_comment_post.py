@@ -61,4 +61,3 @@ class LinkedinCommentPost(LinkedinWorkflow):
                 status=PostStatus.COMMENTED,
             )
             self.post_repository.upsert_by_linkedin_id(updated_post)
-        self.browser_service.close(driver_key)

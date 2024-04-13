@@ -44,5 +44,4 @@ class LinkedinGetPosts(LinkedinWorkflow):
         except exceptions.TimeoutException:
             raise Exception("not found post list")
 
-        self.browser_service.close(driver_key)
         return result
