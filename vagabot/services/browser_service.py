@@ -7,7 +7,6 @@ from undetected_chromedriver import ChromeOptions
 
 
 class BrowserService:
-    # TODO: moving foward for cli
     _se_router_host = ""
     _se_router_port: str | int = 4444
 
