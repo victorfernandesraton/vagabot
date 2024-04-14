@@ -54,7 +54,7 @@ class BrowserService:
             finally:
                 try:
                     if session_id:
-                        print(
+                        logging.error(
                             f"Derrubando o driver com session_id {session_id} do Selenium Grid."
                         )
                         webdriver.Remote(
