@@ -25,6 +25,7 @@ class LinkedinCommentPost(LinkedinWorkflow):
         self.post_repository = post_repository
 
     def execute(self, posts: List[Post], driver_key: str):
+        self.browser_service.drivers[driver_key].get("https://www.linkedin.com")
         input_wait = WebDriverWait(self.browser_service.drivers[driver_key], timeout=20)
         for post in posts:
             self.browser_service.drivers[driver_key].get(post.link)

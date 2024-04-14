@@ -18,7 +18,7 @@ class LinkedinGetPosts(LinkedinWorkflow):
     POSTS_LIST_XPATH = "//ul[@role='list' and contains(@class, 'reusable-search__entity-result-list ')]/li"
 
     def execute(self, queue_search: str, driver_key: str) -> List[str | None]:
-        result = []
+        self.browser_service.drivers[driver_key].get("https://www.linkedin.com")
         input_wait = WebDriverWait(self.browser_service.drivers[driver_key], timeout=20)
         try:
             search_input = input_wait.until(
@@ -39,9 +39,8 @@ class LinkedinGetPosts(LinkedinWorkflow):
                 EC.presence_of_all_elements_located((By.XPATH, self.POSTS_LIST_XPATH))
             )[:9]
 
-            result = [post.get_attribute("outerHTML") for post in post_list]
-
         except exceptions.TimeoutException:
             raise Exception("not found post list")
 
+        result = [post.get_attribute("outerHTML") for post in post_list]
         return result
