@@ -113,13 +113,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-
-    service_auth = LinkedinAuth(browser_service)
-    driver_key = browser_service.open_browser()
-    service_auth.execute(driver_key, config("LINKEDIN_EMAIL"), config("LINKEDIN_PASS"))
-    service = LinkedinGetPosts(browser_service)
-    # TODO: passing default value, but planing for get these data from configuration
-    finded_posts = service.execute(
-        driver_key, "Vagas + Python", {"datePosted": "LAST_WEEK"}
-    )
+    main()

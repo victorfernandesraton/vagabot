@@ -77,7 +77,7 @@ class LinkedinGetPosts(LinkedinWorkflow):
         try:
             option_radio = input_wait.until(
                 EC.presence_of_element_located(
-                    (By.XPATH, f"//input[@id='{option.value}']")
+                    (By.XPATH, f"//input[@id='{option.value}']/../label")
                 )
             )
             option_radio.click()
