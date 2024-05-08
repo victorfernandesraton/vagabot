@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from bs4 import BeautifulSoup
@@ -38,8 +39,8 @@ class PostsFromSearchExtractor:
             content=soup.select_one(self.POST_CONTENT_SELECTOR).text,
         )
 
-    def __to_dict(self, post: str) -> dict:
-        soup = BeautifulSoup(post, features="lxml")
+    def __to_dict(self, content: str) -> dict | None:
+        soup = BeautifulSoup(content, features="lxml")
         urn = soup.select_one(self.POST_LINK_SELECTOR)
         if not urn:
             return None
@@ -53,7 +54,7 @@ class PostsFromSearchExtractor:
         for idx, post_content in enumerate(self.posts):
             post = self.__to_dict(post_content)
             if not post:
-                print(f"Not found valid content in post[{idx}]")
+                logging.info(f"Not found valid content in post[{idx}]")
             else:
                 result.append(post)
 

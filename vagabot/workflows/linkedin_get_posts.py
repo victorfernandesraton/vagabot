@@ -1,4 +1,5 @@
 import time
+from enum import Enum
 from typing import List
 
 from selenium.common import exceptions
@@ -10,6 +11,12 @@ from selenium.webdriver.support.wait import WebDriverWait
 from .linkedin_workflow import LinkedinWorkflow
 
 
+class DatePostOptions(Enum):
+    LAST_24_HOURS = "datePosted-past-24h"
+    LAST_WEEK = "datePosted-past-week"
+    LAST_MONTH = "datePosted-past-month"
+
+
 class LinkedinGetPosts(LinkedinWorkflow):
     SEARCH_INPUT_XPATH = "//*[@id='global-nav-typeahead']/input"
     POSTS_BUTTON_SELECT = (
@@ -17,7 +24,12 @@ class LinkedinGetPosts(LinkedinWorkflow):
     )
     POSTS_LIST_XPATH = "//ul[@role='list' and contains(@class, 'reusable-search__entity-result-list ')]/li"
 
-    def execute(self, queue_search: str, driver_key: str) -> List[str | None]:
+    def execute(
+        self,
+        driver_key: str,
+        queue_search: str,
+        filters: dict = {},
+    ) -> List[str | None]:
         self.browser_service.drivers[driver_key].get("https://www.linkedin.com")
         input_wait = WebDriverWait(self.browser_service.drivers[driver_key], timeout=20)
         try:
@@ -33,6 +45,10 @@ class LinkedinGetPosts(LinkedinWorkflow):
             f"https://www.linkedin.com/search/results/content/?keywords={queue_search}&origin=SWITCH_SEARCH_VERTICAL&sid=r01"
         )
         time.sleep(5)
+        print(filters)
+        filter_by_date = filters.get("datePosted", None)
+        if filter_by_date:
+            self.__filter_by_post_date(driver_key, DatePostOptions[filter_by_date])
 
         try:
             post_list = input_wait.until(
@@ -44,3 +60,26 @@ class LinkedinGetPosts(LinkedinWorkflow):
 
         result = [post.get_attribute("outerHTML") for post in post_list]
         return result
+
+    # TODO: Make this generic for all filter later
+    def __filter_by_post_date(self, driver_key: str, option: DatePostOptions):
+        input_wait = WebDriverWait(self.browser_service.drivers[driver_key], timeout=20)
+        try:
+            filter_button = input_wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, f"//button[@id='searchFilter_datePosted']")
+                )
+            )
+            filter_button.click()
+        except (exceptions.TimeoutException, exceptions.NoSuchElementException):
+            raise Exception("not found sort by date filter")
+
+        try:
+            option_radio = input_wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, f"//input[@id='{option.value}']")
+                )
+            )
+            option_radio.click()
+        except (exceptions.TimeoutException, exceptions.NoSuchElementException):
+            raise Exception("not found sort by date filter")

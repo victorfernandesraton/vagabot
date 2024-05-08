@@ -32,7 +32,9 @@ def search_posts(args) -> list:
     logging.info(f"Search posts: {args.query}")
     driver_key = linkedin_auth(args)
     service = LinkedinGetPosts(browser_service)
-    finded_posts = service.execute(args.query, driver_key)
+    # TODO: passing default value, but planing for get these data from configuration
+    finded_posts = service.execute(driver_key, args.query, {"datePosted": "LAST_WEEK"})
+    finded_posts = list(filter(lambda i: i is not None, finded_posts))
     result = PostsFromSearchExtractor(finded_posts).to_dict()
     browser_service.close(driver_key)
     return result
@@ -46,7 +48,7 @@ def post_comment(args, posts: list, post_repository: PostRepository):
         post_repository=post_repository,
         message=args.comment,
     )
-    service.execute(posts, driver_key)
+    service.execute(driver_key, posts)
     browser_service.close(driver_key)
 
 
@@ -111,4 +113,13 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+
+    service_auth = LinkedinAuth(browser_service)
+    driver_key = browser_service.open_browser()
+    service_auth.execute(driver_key, config("LINKEDIN_EMAIL"), config("LINKEDIN_PASS"))
+    service = LinkedinGetPosts(browser_service)
+    # TODO: passing default value, but planing for get these data from configuration
+    finded_posts = service.execute(
+        driver_key, "Vagas + Python", {"datePosted": "LAST_WEEK"}
+    )
