@@ -39,10 +39,17 @@ class PostsFromSearchExtractor:
             content=soup.select_one(self.POST_CONTENT_SELECTOR).text,
         )
 
-    def __to_dict(self, content: str) -> dict | None:
+    def __get_soup(self, content: str) -> BeautifulSoup:
         soup = BeautifulSoup(content, features="lxml")
+        return soup
+
+    def __get_urm(self, soup: BeautifulSoup):
         urn = soup.select_one(self.POST_LINK_SELECTOR)
-        if not urn:
+        return urn
+
+    def __to_dict(self, content: str) -> dict | None:
+        soup = self.__get_soup(content)
+        if not self.__get_urm(soup):
             return None
 
         author = self.__get_author(soup)
