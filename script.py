@@ -35,9 +35,8 @@ def search_posts(args) -> list:
     # TODO: passing default value, but planing for get these data from configuration
     finded_posts = service.execute(driver_key, args.query, {"datePosted": "LAST_WEEK"})
     finded_posts = list(filter(lambda i: i is not None, finded_posts))
-    result = PostsFromSearchExtractor(finded_posts).to_dict()
     browser_service.close(driver_key)
-    return result
+    return finded_posts
 
 
 def post_comment(args, posts: list, post_repository: PostRepository):
@@ -53,11 +52,13 @@ def post_comment(args, posts: list, post_repository: PostRepository):
 
 
 def main():
-    conn = sqlite3.connect(config("DB_FILENAME"))
-    author_repository = AuthorRepository(conn)
-    author_repository.create_table_ddl()
-    post_repository = PostRepository(conn)
-    post_repository.create_table_ddl()
+    database_filename = config("DB_FILENAME", None)
+    if database_filename:
+        conn = sqlite3.connect(config(database_filename))
+        author_repository = AuthorRepository(conn)
+        author_repository.create_table_ddl()
+        post_repository = PostRepository(conn)
+        post_repository.create_table_ddl()
 
     # create common argarse without helper to keep global args
     common = argparse.ArgumentParser(add_help=False)
@@ -85,9 +86,12 @@ def main():
         "search-posts", help="Search posts", parents=[common]
     )
     search_posts_parser.add_argument(
-        "-q", "--query", required=False, help="Query for search", type=str
+        "-q", "--query", required=False, help="Query for search", type=str, default=""
     )
 
+    search_posts_parser.add_argument(
+        "-o", "--output", required=False, help="Output type", type=str
+    )
     post_comment_parser = subparsers.add_parser(
         "post-comment", help="Post a comment", parents=[common]
     )
@@ -100,9 +104,20 @@ def main():
     if args.command == "search-posts":
         result = search_posts(args)
         logging.debug(result)
-        for item in result:
-            author_repository.upsert_by_link(item["author"])
-            post_repository.upsert_by_linkedin_id(item["post"])
+
+        formated_results = PostsFromSearchExtractor(result)
+
+        if args.output:
+            if args.output.lower().endswith(".csv"):
+                import pandas as pd
+
+                posts = [item.get("post") for item in formated_results.to_dict()]
+                df = pd.DataFrame(posts)
+                df.to_csv(args.output)
+        elif database_filename:
+            for item in formated_results.to_dict():
+                author_repository.upsert_by_link(item["author"])
+                post_repository.upsert_by_linkedin_id(item["post"])
 
     elif args.command == "post-comment":
         posts_uncommented = post_repository.get_by_status(PostStatus.CREATED)
