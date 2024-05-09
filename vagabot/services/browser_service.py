@@ -59,7 +59,6 @@ class BrowserService:
                         )
                         webdriver.Remote(
                             command_executor=driver.command_executor,
-                            desired_capabilities={},
                         ).quit()
                 except Exception as e:
                     logging.error(
