@@ -1,1 +1,1 @@
-from .browser_service import BrowserService
+from .remote_browser_service import RemoteBrowserService

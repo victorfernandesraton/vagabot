@@ -9,21 +9,21 @@ from vagabot.adapters.posts_from_search_adapters import PostsFromSearchExtractor
 from vagabot.entities import PostStatus
 from vagabot.repository.author_repository import AuthorRepository
 from vagabot.repository.post_repository import PostRepository
-from vagabot.services import BrowserService
+from vagabot.services import RemoteBrowserService
 from vagabot.workflows import LinkedinAuth, LinkedinCommentPost, LinkedinGetPosts
 
 _se_router_host = config("SE_ROUTER_HOST", "localhost")
 _se_router_port = config("SE_ROUTER_PORT", "4444")
 
-browser_service = BrowserService(
+remote_browser_service = RemoteBrowserService(
     se_router_host=_se_router_host, se_router_port=_se_router_port
 )
 
 
 def linkedin_auth(args) -> str:
     logging.info(f"Login for {args.user} in linkedin")
-    service_auth = LinkedinAuth(browser_service)
-    driver_key = browser_service.open_browser()
+    service_auth = LinkedinAuth(remote_browser_service)
+    driver_key = remote_browser_service.open_browser()
     service_auth.execute(driver_key, args.user, args.password)
     return driver_key
 
@@ -31,11 +31,11 @@ def linkedin_auth(args) -> str:
 def search_posts(args) -> list:
     logging.info(f"Search posts: {args.query}")
     driver_key = linkedin_auth(args)
-    service = LinkedinGetPosts(browser_service)
+    service = LinkedinGetPosts(remote_browser_service)
     # TODO: passing default value, but planing for get these data from configuration
     finded_posts = service.execute(driver_key, args.query, {"datePosted": "LAST_WEEK"})
     finded_posts = list(filter(lambda i: i is not None, finded_posts))
-    browser_service.close(driver_key)
+    remote_browser_service.close(driver_key)
     return finded_posts
 
 
@@ -43,12 +43,12 @@ def post_comment(args, posts: list, post_repository: PostRepository):
     logging.info(f"Posting comment: {args.comment}")
     driver_key = linkedin_auth(args)
     service = LinkedinCommentPost(
-        browser_service=browser_service,
+        browser_service=remote_browser_service,
         post_repository=post_repository,
         message=args.comment,
     )
     service.execute(driver_key, posts)
-    browser_service.close(driver_key)
+    remote_browser_service.close(driver_key)
 
 
 def main():

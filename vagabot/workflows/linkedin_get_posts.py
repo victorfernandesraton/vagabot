@@ -39,7 +39,7 @@ class LinkedinGetPosts(LinkedinWorkflow):
             )
             self.human_input_simulate(search_input, queue_search)
             self.human_input_simulate(search_input, Keys.ENTER)
-        except exceptions.TimeoutException as e:
+       except exceptions.TimeoutException as e:
             logging.error("not found input here search")
             raise Exception(e)
 
