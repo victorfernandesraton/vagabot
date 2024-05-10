@@ -82,9 +82,14 @@ Por padrão o CLI exige que informe no comando o login e o email do usuário do 
 # Roadmap
 Uma lista das coisas que não fiz e pretendo fazer:
 ## Melhorias em bot
+- [] outputs
+    - [x] sqlite
+    - [x] csv
+    - [] xls
 - [] Implementar busca de postagem melhor
     - [] permitir buscar mais que os 10 primeiros posts
     - [] evitar postagens sem comentário na ação de comentário
+    - [] filtro por data
 - [] Implementar uma melhor network
     - [] Seguir autores
     - [] Enviar mensagem sobre postagem
