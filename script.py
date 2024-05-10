@@ -109,10 +109,7 @@ def main():
 
         if args.output:
             if args.output.lower().endswith(".csv"):
-                import pandas as pd
-
-                posts = [item.get("post") for item in formated_results.to_dict()]
-                df = pd.DataFrame(posts)
+                df = formated_results.to_dataframe()
                 df.to_csv(args.output)
         elif database_filename:
             for item in formated_results.to_dict():

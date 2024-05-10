@@ -1,9 +1,8 @@
 from unittest.case import TestCase
 
 from tests.conftest import create_author_fixture, db, post_repository_fixture
-from vagabot.repository.post_repository import PostRepository
-
 from vagabot.entities import Post, PostStatus
+from vagabot.repository.post_repository import PostRepository
 
 _test = TestCase()
 

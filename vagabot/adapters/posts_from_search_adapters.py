@@ -1,5 +1,6 @@
 import logging
 from typing import List
+import pandas as pd
 
 from bs4 import BeautifulSoup
 
@@ -66,3 +67,20 @@ class PostsFromSearchExtractor:
                 result.append(post)
 
         return result
+
+    def to_dataframe(self) ->  pd.DataFrame:
+        result = []
+        for _idx, post_content in enumerate(self.posts):
+            soup = self.__get_soup(post_content)
+            author = self.__get_author(soup)
+            post = self.__get_publication(soup, author)
+            data = {
+                "author_name": author.name,
+                "author_link": author.link,
+                "post_content" : post.content,
+                "post_link" : post.link
+
+            }
+            result.append(data)
+
+        return pd.DataFrame(result)

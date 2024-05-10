@@ -6,7 +6,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from undetected_chromedriver import ChromeOptions
 
 
-class BrowserService:
+class RemoteBrowserService:
     _se_router_host = ""
     _se_router_port: str | int = 4444
 

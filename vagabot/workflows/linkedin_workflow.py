@@ -3,11 +3,11 @@ from abc import abstractmethod
 
 from selenium.webdriver.remote.webelement import WebElement
 
-from vagabot.services import BrowserService
+from vagabot.services import RemoteBrowserService
 
 
 class LinkedinWorkflow:
-    def __init__(self, browser_service: BrowserService) -> None:
+    def __init__(self, browser_service: RemoteBrowserService) -> None:
         self.browser_service = browser_service
 
     @staticmethod
