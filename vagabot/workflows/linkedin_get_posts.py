@@ -2,6 +2,7 @@ import logging
 import time
 from enum import Enum
 from typing import List
+from urllib.parse import ParseResult, parse_qs, parse_qsl, urlencode, urlparse
 
 from selenium.common import exceptions
 from selenium.webdriver.common.by import By
@@ -13,9 +14,12 @@ from .linkedin_workflow import LinkedinWorkflow
 
 
 class DatePostOptions(Enum):
-    LAST_24_HOURS = "datePosted-past-24h"
-    LAST_WEEK = "datePosted-past-week"
-    LAST_MONTH = "datePosted-past-month"
+    LAST_24_HOURS = "past-24h"
+    LAST_WEEK = "past-week"
+    LAST_MONTH = "past-month"
+
+
+filterOptions = {"datePosted": DatePostOptions}
 
 
 class LinkedinGetPosts(LinkedinWorkflow):
@@ -43,15 +47,16 @@ class LinkedinGetPosts(LinkedinWorkflow):
             logging.error("not found input here search")
             raise Exception(e)
 
-        self.browser_service.drivers[driver_key].get(
-            f"https://www.linkedin.com/search/results/content/?keywords={queue_search}&origin=SWITCH_SEARCH_VERTICAL&sid=r01"
+        url = self.__get_current_url(driver_key)
+        query = parse_qs(url.query)
+        query.update(self.__create_filter_url(driver_key, filters))
+        query.update({"keywords": queue_search})
+        updated_url = url._replace(
+            query=urlencode(query, doseq=True), path="search/results/content/"
         )
+        self.browser_service.drivers[driver_key].get(updated_url.geturl())
         time.sleep(5)
-        filter_by_date = filters.get("datePosted", None)
-        if filter_by_date:
-            self.__filter_by_post_date(driver_key, DatePostOptions[filter_by_date])
 
-        time.sleep(5)
         try:
             post_list = input_wait.until(
                 EC.presence_of_all_elements_located((By.XPATH, self.POSTS_LIST_XPATH))
@@ -65,41 +70,16 @@ class LinkedinGetPosts(LinkedinWorkflow):
         logging.info(f"Found {len(result)} avaliable posts")
         return result
 
-    # TODO: Make this generic for all filter later
-    def __filter_by_post_date(self, driver_key: str, option: DatePostOptions):
-        input_wait = WebDriverWait(self.browser_service.drivers[driver_key], timeout=20)
-        try:
-            filter_button = input_wait.until(
-                EC.presence_of_element_located(
-                    (By.XPATH, f"//button[@id='searchFilter_datePosted']")
-                )
-            )
-            filter_button.click()
-        except (exceptions.TimeoutException, exceptions.NoSuchElementException) as e:
-            logging.error("not found sort by date filter")
-            raise Exception(e)
+    def __get_current_url(self, driver_key: str) -> ParseResult:
+        url_str = self.browser_service.drivers[driver_key].current_url
+        url = urlparse(url_str)
+        return url
 
-        try:
-            option_radio = input_wait.until(
-                EC.presence_of_element_located(
-                    (By.XPATH, f"//input[@id='{option.value}']/../label")
-                )
-            )
-            option_radio.click()
-        except (exceptions.TimeoutException, exceptions.NoSuchElementException) as e:
-            logging.error(f"not found sort option {option}")
-            raise Exception(e)
+    def __create_filter_url(self, driver_key: str, filter: dict):
+        result = {}
+        for key, value in filter.items():
+            enum_filter = filterOptions.get(key, None)
+            if enum_filter:
+                result[key] = enum_filter[value].value
 
-        try:
-            button_confirm_filter = input_wait.until(
-                EC.presence_of_element_located(
-                    (
-                        By.XPATH,
-                        "//*[@id='hoverable-outlet-date-posted-filter-value']//button[@data-control-name='filter_show_results']",
-                    )
-                )
-            )
-            button_confirm_filter.click()
-        except (exceptions.TimeoutException, exceptions.NoSuchElementException) as e:
-            logging.error("not found button to confirm")
-            raise Exception(e)
+        return result

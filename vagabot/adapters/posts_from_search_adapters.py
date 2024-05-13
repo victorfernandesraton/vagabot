@@ -72,15 +72,18 @@ class PostsFromSearchExtractor:
         result = []
         for _idx, post_content in enumerate(self.posts):
             soup = self.__get_soup(post_content)
-            author = self.__get_author(soup)
-            post = self.__get_publication(soup, author)
-            data = {
-                "author_name": author.name,
-                "author_link": author.link,
-                "post_content" : post.content,
-                "post_link" : post.link
+            if not soup:
+                logging.debug("Not found soup for output: %s", post_content)
+            else:
+                author = self.__get_author(soup)
+                post = self.__get_publication(soup, author)
+                data = {
+                    "author_name": author.name,
+                    "author_link": author.link,
+                    "post_content" : post.content,
+                    "post_link" : post.link
 
-            }
-            result.append(data)
+                }
+                result.append(data)
 
         return pd.DataFrame(result)
