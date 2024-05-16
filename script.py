@@ -125,16 +125,4 @@ def main():
 
 
 if __name__ == "__main__":
-    username = config("LINKEDIN_EMAIL")
-    password = config("LINKEDIN_PASS")
-
-    service_auth = LinkedinAuth(remote_browser_service)
-    driver_key = remote_browser_service.open_browser()
-    service_auth.execute(driver_key, username, password)
-    service = LinkedinGetPosts(remote_browser_service)
-    # TODO: passing default value, but planing for get these data from configuration
-    finded_posts = service.execute(driver_key, "VAGAS + NODEJS + REMOTO", {"datePosted": "LAST_WEEK"})
-    finded_posts = list(filter(lambda i: i is not None, finded_posts))
-    remote_browser_service.close(driver_key)
-    formated_results = PostsFromSearchExtractor(finded_posts)
-    df = formated_results.to_dataframe()
+    main()
