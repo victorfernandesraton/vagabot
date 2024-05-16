@@ -79,7 +79,7 @@ class PostRepository(SqliteRepository):
             )
         return None
 
-    def get_by_status(self, status: PostStatus) -> Optional[Post]:
+    def get_by_status(self, status: PostStatus) -> list[Post]:
         self.cursor.execute(
             "SELECT * FROM posts WHERE status = ?", (int(status.value),)
         )
