@@ -15,6 +15,7 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --no-interaction
 
 COPY ./vagabot/ ./vagabot/
+
 COPY script.py ./
 
 # Set the entrypoint to run your script

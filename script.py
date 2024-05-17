@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 import sqlite3
 import sys
 
@@ -52,13 +53,19 @@ def post_comment(args, posts: list, post_repository: PostRepository):
 
 
 def main():
+    author_repository, post_repository = None, None
     database_filename = config("DB_FILENAME", None)
     if database_filename:
-        conn = sqlite3.connect(config(database_filename))
-        author_repository = AuthorRepository(conn)
-        author_repository.create_table_ddl()
-        post_repository = PostRepository(conn)
-        post_repository.create_table_ddl()
+        if not os.path.exists(database_filename):
+            logging.warning(
+                f"SQlite file {database_filename} not exist, using create-sqlite command to fix this"
+            )
+        else:
+            conn = sqlite3.connect(database_filename)
+            author_repository = AuthorRepository(conn)
+            author_repository.create_table_ddl()
+            post_repository = PostRepository(conn)
+            post_repository.create_table_ddl()
 
     # create common argarse without helper to keep global args
     common = argparse.ArgumentParser(add_help=False)
@@ -99,6 +106,15 @@ def main():
         "-c", "--comment", required=True, help="Comment to post", type=str
     )
 
+    # command to create database db if not exist (i hope)
+    sqlite_parser = subparsers.add_parser(
+        "create-sqlite", help="Create sqlite file if not exist", parents=[common]
+    )
+
+    sqlite_parser.add_argument(
+        "-f", "--file", required=True, help="Path to create file"
+    )
+
     args = parser.parse_args()
 
     if args.command == "search-posts":
@@ -111,7 +127,10 @@ def main():
             if args.output.lower().endswith(".csv"):
                 df = formated_results.to_dataframe()
                 df.to_csv(args.output)
-        elif database_filename:
+
+        if database_filename:
+            if not os.path.exists(database_filename):
+                raise FileNotFoundError(database_filename)
             for item in formated_results.to_dict():
                 author_repository.upsert_by_link(item["author"])
                 post_repository.upsert_by_linkedin_id(item["post"])
@@ -119,6 +138,14 @@ def main():
     elif args.command == "post-comment":
         posts_uncommented = post_repository.get_by_status(PostStatus.CREATED)
         post_comment(args, posts_uncommented, post_repository=post_repository)
+
+    elif args.command == "create-sqlite":
+        file_path = args.file
+        if not os.path.exists(file_path):
+            open(file_path, "a").close()
+        else:
+            logging.warn(f"The file '{file_path}' already exists")
+
     else:
         parser.print_help()
         sys.exit(1)
