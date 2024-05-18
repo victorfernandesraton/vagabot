@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vagabot"
-version = "0.1.0"
+version = "0.5.0"
 description = "An bot to get post jobs and interact with for linkedin"
 authors = ["Victor Raton <43411882+victorfernandesraton@users.noreply.github.com>"]
 readme = "README.md"
