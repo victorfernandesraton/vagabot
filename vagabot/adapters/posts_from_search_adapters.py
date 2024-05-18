@@ -1,7 +1,7 @@
 import logging
 from typing import List
-import pandas as pd
 
+import pandas as pd
 from bs4 import BeautifulSoup
 
 from vagabot.entities import Author, Post
@@ -23,10 +23,11 @@ class PostsFromSearchExtractor:
 
     def __get_author(self, soup: BeautifulSoup) -> Author:
         avatar = soup.select_one(self.AUTHOR_AVATAR_SELECTOR)
+        img = avatar.find("img")
         return Author(
             name=soup.select_one(self.AUTHOR_TITLE_SELECTOR).text.replace("\n", ""),
             description=soup.select_one(self.AUTHOR_DESCRIPTION_SELECTOR).text,
-            avatar=avatar.find("img").get("src"),
+            avatar=img.get("src") if img else "",
             link=avatar.get("href"),
         )
 
@@ -68,7 +69,7 @@ class PostsFromSearchExtractor:
 
         return result
 
-    def to_dataframe(self) ->  pd.DataFrame:
+    def to_dataframe(self) -> pd.DataFrame:
         result = []
         for _idx, post_content in enumerate(self.posts):
             soup = self.__get_soup(post_content)
@@ -80,9 +81,8 @@ class PostsFromSearchExtractor:
                 data = {
                     "author_name": author.name,
                     "author_link": author.link,
-                    "post_content" : post.content,
-                    "post_link" : post.link
-
+                    "post_content": post.content,
+                    "post_link": post.link,
                 }
                 result.append(data)
 
